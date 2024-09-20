@@ -15,7 +15,7 @@ export const ListCategories = ({categories, setCategories, setSelectedCategory} 
             setCategories(fetchCategories);
         }
         getListOfCategories();
-    }, []);
+    }, [setCategories]);
 
     return (
         <div className="flex flex-col gap-10">

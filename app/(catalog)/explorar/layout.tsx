@@ -11,7 +11,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <div className="px-12 py-12 text-project-gray-100 flex flex-col gap-12">
+        <div className="p-12 text-project-gray-100 flex flex-col gap-12">
             {children}
         </div>
     );

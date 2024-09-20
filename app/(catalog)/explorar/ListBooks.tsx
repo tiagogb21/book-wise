@@ -1,12 +1,12 @@
-import { getBooksByCategory } from "@/app/api/products/getBooksByCategory";
-import Image from "next/image";
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import { Book, Category, Rating, User } from "@prisma/client";
 import { BookDetails } from "./BookDetails";
 import close from "@/app/assets/icons/Name=X.svg";
-import { Book, Category, Rating, User } from "@prisma/client";
+import { getBooksByCategory } from "@/app/api/books/getBooksByCategory";
 
 interface ExtendedRating extends Rating {
-    user: User;
+    user: Omit<User, 'created_at'>;
 }
 
 export interface ExtendedBook extends Book {

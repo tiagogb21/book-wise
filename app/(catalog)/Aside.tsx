@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import bookHeart from '../assets/icons/mdi_book-heart-outline.svg';
 import Image from "next/image";
+import { ButtonLogout } from "../components/ButtonLogout";
 
 const navLinks = [
     { href: "/home", label: "Home" },
@@ -13,7 +14,7 @@ const navLinks = [
 export const Aside = () => {
     const pathname = usePathname();
     return (
-        <aside className="hidden lg:flex flex-col py-10 px-14 bg-project-gray-700 rounded-lg">
+        <aside className="h-screen hidden lg:flex flex-col justify-between py-10 px-14 bg-project-gray-700 rounded-lg">
             <div className="w-40 flex flex-col gap-16">
                 <div className="bg-gradient-to-r from-project-gradient-start to-project-gradient-end bg-clip-text text-transparent flex gap-2 text-2xl">
                     <Image src={bookHeart} alt="logo" />
@@ -38,6 +39,7 @@ export const Aside = () => {
                     })}
                 </div>
             </div>
+            {/* <ButtonLogout /> */}
         </aside>
     );
 };
