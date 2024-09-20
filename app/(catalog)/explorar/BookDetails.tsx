@@ -3,32 +3,50 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { ExtendedBook } from "./ListBooks";
 import { timeElapsed } from "@/app/utils/timeEllapsed";
-import bookMark from "@/app/assets/icons/Name=BookmarkSimple.svg";
-import bookOpen from "@/app/assets/icons/Name=BookOpen.svg";
-import user from "@/app/assets/icons/Name=User.svg";
+import userIcon from "@/app/assets/icons/Name=User.svg";
+import StarRating from "./StarRating";
+import { createRating } from "@/app/api/ratings/create";
 
 interface BookDetailsProps {
     book: ExtendedBook;
 }
 
 export const BookDetails = ({ book }: BookDetailsProps) => {
-    const {data:session} = useSession();
-
+    const { data: session } = useSession();
     const [showReview, setShowReview] = useState<boolean>(false);
+    const [rate, setRate] = useState<number>(0); // Guarda a nota
+    const [description, setDescription] = useState<string>(""); // Guarda a descrição
 
     const handleChangeShowReview = () => {
-        if(!session) {
-            alert('necessário login');
+        if (!session) {
+            alert("necessário login");
+            return;
+        }
+        setShowReview(!showReview);
+    };
 
+    const handleRatingSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!rate || !description) {
+            alert("Avaliação e descrição são obrigatórias.");
             return;
         }
 
-        setShowReview(!showReview)
-    }
+        const formData = {
+            rate,
+            description,
+            bookId: book.id,
+            userId: session?.user?.id ?? "4383f783-6ce1-4f92-b1dd-7a7a693c4aef",
+        };
+
+        await createRating(formData);
+        setShowReview(false);
+    };
 
     return (
         <div className="flex flex-col gap-10">
-            <div className="flex flex-col gap-10 bg-project-gray-700 py-6 px-8 rounded-lg">
+            <div className="flex flex-col bg-project-gray-700 gap-10 py-6 px-8 rounded-lg">
                 <div className="flex gap-8">
                     <Image
                         src={book.cover_url}
@@ -37,110 +55,101 @@ export const BookDetails = ({ book }: BookDetailsProps) => {
                         height={200}
                     />
                     <div className="flex flex-col justify-between">
-                        <div>
-                            <h2 className="text-lg line-clamp-2">
-                                {book.name}
-                            </h2>
-                            <h3 className="text-gray-600 mb-2">
-                                Autor: {book.author}
-                            </h3>
-                        </div>
+                        <h2 className="text-lg line-clamp-2">{book.name}</h2>
+                        <h3 className="text-gray-600 mb-2">
+                            Autor: {book.author}
+                        </h3>
                         <div className="flex gap-2 text-2xl">
                             {"★".repeat(book.ratings[0]?.rate || 0)}{" "}
-                            {/* Verifica se há rating */}
                             {"☆".repeat(5 - (book.ratings[0]?.rate || 0))}
                         </div>
                     </div>
                 </div>
-                <div className="flex gap-14 pt-6 border-t border-solid border-project-gray-600 text-project-gray-300">
-                    <div className="flex items-center gap-4">
-                        <Image src={bookMark} alt="marcador de livro" />
-                        <div className="flex flex-col">
-                            <h2>Categoria</h2>
-                            <p className="font-bold flex gap-2 text-project-gray-200">
-                                {book.categories.map(
-                                    ({ category: { name } }, id) => (
-                                        <span key={id}>{name}</span>
-                                    )
-                                )}
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <Image src={bookOpen} alt="livro aberto" />
-                        <div className="flex flex-col">
-                            <p>Páginas</p>
-                            <p className="font-bold text-project-gray-300">
-                                {book.total_pages}
-                            </p>
-                        </div>
-                    </div>
-                </div>
             </div>
-            <div>
-                <div className="flex justify-between mb-4">
-                    <h2>Avaliações</h2>
-                    <button
-                        type="button"
-                        onClick={handleChangeShowReview}
-                        className="text-project-purple-100 font-bold"
-                    >
-                        Avaliar
-                    </button>
-                </div>
+            {/* Avaliação */}
+            <div className="flex justify-between mb-4">
+                <h2>Avaliações</h2>
+                <button
+                    type="button"
+                    onClick={handleChangeShowReview}
+                    className="text-project-purple-100 font-bold"
+                >
+                    Avaliar
+                </button>
+            </div>
 
-                {
-                    showReview && (
-                        <div
-                            className="flex flex-col bg-project-gray-700 p-6 rounded-lg mb-6"
-                        >
-                            <form action="" className="flex flex-col gap-6">
-                                <div className="flex justify-between">
-                                    <div className="flex items-center gap-4">
-                                        <Image src={user} alt={session?.user?.name!} width={40} height={40} className="border border-solid border-white rounded-full" />
-                                        <h2>{session?.user?.name}</h2>
-                                    </div>
-                                </div>
-                                <textarea name="" id="" className="border border-solid border-project-purple-100 w-full bg-project-gray-800 rounded-md">Escreva sua avaliação</textarea>
-                                <div className="flex justify-end gap-2">
-                                    <button type="reset" className="py-4 px-6 rounded-md bg-project-gray-600 border border-solid border-project-purple-100">a</button>
-                                    <button type="button" className="py-4 px-6 rounded-md bg-project-gray-600 border border-solid border-project-purple-100">b</button>
-                                </div>
-                            </form>
-                        </div>
-                    )
-                }
-                {book.ratings.map((rating) => (
-                    <div
-                        key={rating.id}
-                        className="flex flex-col gap-6 bg-project-gray-700 p-6 rounded-lg"
+            {showReview && (
+                <div className="flex flex-col bg-project-gray-700 p-6 rounded-lg mb-6">
+                    <form
+                        className="flex flex-col gap-6"
+                        onSubmit={handleRatingSubmit}
                     >
-                        <div className="flex items-start gap-4">
-                            <Image
-                                src={rating.user.avatar_url!}
-                                alt={rating.user.avatar_url!}
-                                width={40}
-                                height={40}
-                                className="rounded-full"
-                            />
-                            <div className="flex-1">
-                                <h2 className="text-project-gray-100 font-bold">
-                                    {rating.user.name}
-                                </h2>
-                                <h3 className="text-project-gray-400">
-                                    {timeElapsed(rating.created_at)}
-                                </h3>
+                        <div className="flex justify-between items-center gap-4">
+                            <div className="flex items-center gap-4">
+                                <Image
+                                    src={userIcon}
+                                    alt={session?.user?.name!}
+                                    width={40}
+                                    height={40}
+                                />
+                                <h2>{session?.user?.name}</h2>
                             </div>
-                            <div className="flex gap-2 text-2xl">
-                                {"★".repeat(book.ratings[0]?.rate || 0)}{" "}
-                                {/* Verifica se há rating */}
-                                {"☆".repeat(5 - (book.ratings[0]?.rate || 0))}
-                            </div>
+                            <StarRating onRatingSubmit={setRate} />{" "}
+                            {/* Captura a nota */}
                         </div>
-                        <p>{rating.description}</p>
+                        <textarea
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)} // Captura a descrição
+                            className="border border-solid border-project-purple-100 w-full bg-project-gray-800 rounded-md px-5 py-4"
+                            placeholder="Escreva sua avaliação"
+                        />
+                        <div className="flex justify-end gap-2">
+                            <button
+                                type="reset"
+                                className="py-4 px-6 rounded-md bg-project-gray-600 border"
+                            >
+                                🗙
+                            </button>
+                            <button
+                                type="submit"
+                                className="py-4 px-6 rounded-md bg-project-gray-600 border border-solid border-project-purple-100 hover:opacity-70"
+                            >
+                                ✔️
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
+
+            {book.ratings.map((rating) => (
+                <div
+                    key={rating.id}
+                    className="flex flex-col gap-6 bg-project-gray-700 p-6 rounded-lg"
+                >
+                    <div className="flex items-start gap-4">
+                        <Image
+                            src={rating.user.avatar_url!}
+                            alt={rating.user.name}
+                            width={40}
+                            height={40}
+                            className="rounded-full"
+                        />
+                        <div className="flex-1">
+                            <h2 className="text-project-gray-100 font-bold">
+                                {rating.user.name}
+                            </h2>
+                            <h3 className="text-project-gray-400">
+                                {timeElapsed(rating.created_at)}
+                            </h3>
+                        </div>
+                        <div className="flex gap-2 text-2xl">
+                            {"★".repeat(rating.rate)}{" "}
+                            {"☆".repeat(5 - rating.rate)}
+                        </div>
                     </div>
-                ))}
-            </div>
+                    <p>{rating.description}</p>
+                </div>
+            ))}
         </div>
     );
 };
