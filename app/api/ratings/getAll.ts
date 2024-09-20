@@ -11,7 +11,7 @@ export async function getRatings(): Promise<ExtendedRating[]> {
             book: true,
         },
         orderBy: {
-            rate: "desc",
+            created_at: "desc",
         },
     });
 
