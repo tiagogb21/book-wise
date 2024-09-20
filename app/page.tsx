@@ -1,18 +1,18 @@
-import { getServerSession } from "next-auth";
 import Link from "next/link";
 import Image from "next/image";
-import { nextAuthOptions } from "./lib/configs/auth/authOptions/authOptions";
 import { ButtonLogin } from "./components/ButtonLogin";
 import rocketLaunch from '@/app/assets/icons/RocketLaunch.svg';
 import google from '@/app/assets/icons/logos_google-icon.svg';
 import github from '@/app/assets/icons/akar-icons_github-fill.svg';
+import authBackground from '@/app/assets/images/auth-background-image.png';
 
 export default async function Home() {
-    // const session = await getServerSession(nextAuthOptions);
-
     return (
-        <main className="flex min-h-screen flex-col items-center justify-center p-24 text-white">
-            <div className="flex flex-col">
+        <main className="flex min-h-screen items-center justify-between text-white">
+            <div className="hidden lg:flex">
+                <Image src={authBackground} alt="Rocket Launch" width={400} height={700} />
+            </div>
+            <div className="flex flex-1 flex-col items-center justify-center">
                 <div className="flex flex-col mb-10">
                 <h1 className="text-2xl">Boas vindas!</h1>
                 <p className="text-project-gray-200">Faça seu login ou acesse como visitante.</p>
