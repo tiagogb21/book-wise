@@ -9,6 +9,7 @@ import { ButtonLogout } from "../components/ButtonLogout";
 const navLinks = [
     { href: "/home", label: "Home" },
     { href: "/explorar", label: "Explorar" },
+    { href: "/perfil", label: "Perfil" },
 ];
 
 export const Aside = () => {
