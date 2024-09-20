@@ -6,8 +6,16 @@ import magnifyingGlass from "@/app/assets/icons/MagnifyingGlass.png";
 import { ChangeEvent, useState } from "react";
 import { ListUser } from "./ListUser";
 import { ListBooksRating } from "./ListBooksRating";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 export default function Perfil() {
+    const {data:session} = useSession();
+
+    if(!session) {
+        redirect('/');
+    }
+
     const [search, setSearch] = useState<string>("");
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {

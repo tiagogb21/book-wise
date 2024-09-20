@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import bookHeart from '../assets/icons/mdi_book-heart-outline.svg';
 import Image from "next/image";
 import { ButtonLogout } from "../components/ButtonLogout";
+import { useSession } from "next-auth/react";
+import signOutImg from '@/app/assets/icons/Name=SignOut.svg';
 
 const navLinks = [
     { href: "/home", label: "Home" },
@@ -13,6 +15,7 @@ const navLinks = [
 ];
 
 export const Aside = () => {
+    const {data:session} = useSession();
     const pathname = usePathname();
     return (
         <aside className="h-screen hidden lg:flex flex-col justify-between py-10 px-14 bg-project-gray-700 rounded-lg">
@@ -32,7 +35,7 @@ export const Aside = () => {
                                     isActive
                                         ? "border-l-4 border-solid border-blue-400 text-project-gray-100"
                                         : "border-l-4 border-solid border-transparent text-project-gray-400"
-                                } pl-4`}
+                                } pl-4 hover:text-white`}
                             >
                                 {label}
                             </Link>
@@ -40,7 +43,16 @@ export const Aside = () => {
                     })}
                 </div>
             </div>
-            {/* <ButtonLogout /> */}
+            {
+                session ? (
+                    <ButtonLogout />
+                ) : (
+                    <Link href="/" className="flex items-center justify-center gap-5 text-white">
+                        Fazer login
+                        <Image src={signOutImg} alt="sair" width={30} height={30} />
+                    </Link>
+                )
+            }
         </aside>
     );
 };

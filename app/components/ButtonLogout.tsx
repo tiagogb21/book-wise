@@ -1,13 +1,11 @@
 'use client';
 
 import Image from "next/image";
-import { getServerSession } from "next-auth";
-import { signOut } from "next-auth/react";
+import { useSession, signIn, signOut } from "next-auth/react"
 import signOutImg from '@/app/assets/icons/Name=SignOut.svg';
-import { nextAuthOptions } from "../lib/configs/auth/authOptions/authOptions";
 
-export const ButtonLogout = async () => {
-    const session = await getServerSession(nextAuthOptions);
+export const ButtonLogout = () => {
+    const {data:session} = useSession();
 
     return (
         <button

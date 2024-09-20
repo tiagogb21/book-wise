@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Book, Rating } from "@prisma/client";
 import { getBookByUserName } from "@/app/api/ratings/getBookByUserName";
 import { timeElapsed } from "@/app/utils/timeEllapsed";
+import { useSession } from "next-auth/react";
 
 interface BooksRating extends Rating {
     book: Book;
@@ -12,10 +13,18 @@ interface BooksRating extends Rating {
 export const ListBooksRating = () => {
     const [booksRating, setBooksRating] = useState<BooksRating[] | null>();
 
+    const {data:session} = useSession();
+
+    if(!session) {
+        return (
+            <div>Nenhum dado encontrado</div>
+        )
+    }
+
     useEffect(() => {
         async function getBooksRating() {
             const fetchBooksRating: BooksRating[] = await getBookByUserName(
-                "Lindsey Philips"
+                session?.user?.name!
             );
             setBooksRating(fetchBooksRating);
         }

@@ -9,13 +9,22 @@ import bookOpen from '@/app/assets/icons/Name=BookOpen.svg';
 import books from '@/app/assets/icons/Name=Books.svg';
 import userList from '@/app/assets/icons/Name=User List.svg';
 import bookMark from '@/app/assets/icons/Name=BookmarkSimple.svg';
+import { useSession } from "next-auth/react";
 
 export const ListUser = () => {
+    const {data:session} = useSession();
+
+    if(!session) {
+        return (
+            <div>Nenhum dado encontrado</div>
+        )
+    }
+
     const [user, setUser] = useState<User | null>();
 
     useEffect(() => {
         async function getUserInfo() {
-            const fetchCategories = await getUserByName("Lindsey Philips");
+            const fetchCategories = await getUserByName(session?.user?.name!);
             setUser(fetchCategories);
         }
         getUserInfo();
@@ -34,7 +43,7 @@ export const ListUser = () => {
                     />
                     <h2 className="text-xl">{user?.name}</h2>
                     <p className="text-sm text-project-gray-400">
-                        Membro desde de{" "}
+                        Membro desde {" "}
                         {new Date(user?.created_at!).getFullYear()}
                     </p>
                 </div>
